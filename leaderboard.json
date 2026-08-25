@@ -1,0 +1,218 @@
+[
+  {
+    "id": "17875708743508r8c04",
+    "name": "h2",
+    "score": 12,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T11:27:54.350Z"
+  },
+  {
+    "id": "1787573404146ayvh46",
+    "name": "Kits1",
+    "score": 16,
+    "level": "hard",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T12:10:04.146Z"
+  },
+  {
+    "id": "1787574649344el7cdo",
+    "name": "Hardik",
+    "score": 20,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T12:30:49.344Z"
+  },
+  {
+    "id": "17875747261448w9ebf",
+    "name": "Hardik",
+    "score": 20,
+    "level": "extreme",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T12:32:06.144Z"
+  },
+  {
+    "id": "178757656588547r3gs",
+    "name": "Samiksha",
+    "score": 18,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:02:45.885Z"
+  },
+  {
+    "id": "score_1787576775856_e1sj2j",
+    "name": "Satyam r",
+    "score": 13,
+    "level": "hard",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:06:15.856Z"
+  },
+  {
+    "id": "score_1787577080443_tdpdba",
+    "name": "Satyam r",
+    "score": 25,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 1.33,
+    "createdAt": "2026-08-24T13:11:20.443Z"
+  },
+  {
+    "id": "score_1787577197581_jzyf2y",
+    "name": "Satyam r",
+    "score": 13,
+    "level": "extreme",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:13:17.581Z"
+  },
+  {
+    "id": "score_1787577247568_1teq31",
+    "name": "Satyam r",
+    "score": 15,
+    "level": "hard",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:14:07.568Z"
+  },
+  {
+    "id": "score_1787577278903_t3r9zz",
+    "name": "Satyam r",
+    "score": 20,
+    "level": "hard",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:14:38.903Z"
+  },
+  {
+    "id": "score_1787578812660_k7g8xn",
+    "name": "Anshu",
+    "score": 21,
+    "level": "easy",
+    "accuracy": 95,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:40:12.660Z"
+  },
+  {
+    "id": "score_1787578933274_5f71wc",
+    "name": "Muskan",
+    "score": 20,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T13:42:13.275Z"
+  },
+  {
+    "id": "score_1787581934370_ob1gzw",
+    "name": "Gagan",
+    "score": 14,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T14:32:14.370Z"
+  },
+  {
+    "id": "score_1787587140038_xspfwu",
+    "name": "parth rastogi",
+    "score": 25,
+    "level": "hard",
+    "accuracy": 100,
+    "timeRemaining": 4.05,
+    "createdAt": "2026-08-24T15:59:00.038Z"
+  },
+  {
+    "id": "score_1787587756185_v7ckxs",
+    "name": "Anila 1",
+    "score": 15,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T16:09:16.185Z"
+  },
+  {
+    "id": "score_1787592485438_hvyg0d",
+    "name": "Parth Rastogi",
+    "score": 16,
+    "level": "extreme",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T17:28:05.438Z"
+  },
+  {
+    "id": "score_1787592567559_8lcvv5",
+    "name": "parth rastogi",
+    "score": 19,
+    "level": "extreme",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T17:29:27.559Z"
+  },
+  {
+    "id": "score_1787592590189_tqj242",
+    "name": "Parth Rastogi",
+    "score": 21,
+    "level": "extreme",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T17:29:50.189Z"
+  },
+  {
+    "id": "score_1787593089546_kaxmpr",
+    "name": "Parth Rastogi",
+    "score": 22,
+    "level": "extreme",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T17:38:09.546Z"
+  },
+  {
+    "id": "score_1787594684853_05q644",
+    "name": "Kavya",
+    "score": 14,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T18:04:44.853Z"
+  },
+  {
+    "id": "score_1787595403378_k330tl",
+    "name": "Sejal 🏆",
+    "score": 25,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 4.15,
+    "createdAt": "2026-08-24T18:16:43.378Z"
+  },
+  {
+    "id": "score_1787595494335_h6unld",
+    "name": "Sejal 🏆",
+    "score": 14,
+    "level": "hard",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T18:18:14.335Z"
+  },
+  {
+    "id": "score_1787597224151_7vw6lb",
+    "name": "Saurabh",
+    "score": 25,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 2.25,
+    "createdAt": "2026-08-24T18:47:04.151Z"
+  },
+  {
+    "id": "score_1787600364869_6pkrob",
+    "name": "chitransh",
+    "score": 19,
+    "level": "easy",
+    "accuracy": 100,
+    "timeRemaining": 0,
+    "createdAt": "2026-08-24T19:39:24.869Z"
+  }
+]

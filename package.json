@@ -1,0 +1,28 @@
+{
+  "name": "number-rush",
+  "version": "1.0.0",
+  "description": "A full-stack number sequence speed game with Easy, Hard and Extreme difficulty levels.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "number-game",
+    "speed-game",
+    "javascript",
+    "nodejs",
+    "express",
+    "full-stack"
+  ],
+  "author": "Hardik Gupta",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
+    "dotenv": "^17.4.2",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
