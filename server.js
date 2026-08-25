@@ -288,7 +288,7 @@ app.get(
 
 
 // ===============================
-// SAVE LEADERBOARD SCORE
+// SAVE / UPDATE BEST LEADERBOARD SCORE
 // ===============================
 
 app.post(
@@ -306,11 +306,10 @@ app.post(
             } = req.body;
 
 
-            // NAME
+            // NAME VALIDATION
 
             if (
-                typeof name !==
-                    "string" ||
+                typeof name !== "string" ||
                 name.trim().length === 0
             ) {
 
@@ -324,7 +323,7 @@ app.post(
             }
 
 
-            // SCORE
+            // SCORE VALIDATION
 
             if (
                 !isValidNumber(score) ||
@@ -342,12 +341,10 @@ app.post(
             }
 
 
-            // LEVEL
+            // LEVEL VALIDATION
 
             if (
-                !allowedLevels.includes(
-                    level
-                )
+                !allowedLevels.includes(level)
             ) {
 
                 return res
@@ -360,12 +357,10 @@ app.post(
             }
 
 
-            // ACCURACY
+            // ACCURACY VALIDATION
 
             if (
-                !isValidNumber(
-                    accuracy
-                ) ||
+                !isValidNumber(accuracy) ||
                 accuracy < 0 ||
                 accuracy > 100
             ) {
@@ -381,60 +376,55 @@ app.post(
 
 
             const cleanName =
-                cleanPlayerName(
-                    name
-                );
+                cleanPlayerName(name);
+
+
+            const safeScore =
+                Math.round(score);
+
+
+            const safeAccuracy =
+                Math.round(accuracy);
 
 
             const safeTime =
-                isValidNumber(
-                    timeRemaining
-                )
+                isValidNumber(timeRemaining)
                     ? Math.max(
                         0,
                         Number(
-                            timeRemaining
-                                .toFixed(2)
+                            timeRemaining.toFixed(2)
                         )
                     )
                     : 0;
 
 
+            // ===============================
+            // FIND EXISTING PLAYER + LEVEL
+            // ===============================
+
             const {
-                data,
-                error
+                data: existingScores,
+                error: findError
             } =
                 await supabase
                     .from("scores")
-                    .insert({
-                        name:
-                            cleanName,
-
-                        score:
-                            Math.round(
-                                score
-                            ),
-
-                        level:
-                            level,
-
-                        accuracy:
-                            Math.round(
-                                accuracy
-                            ),
-
-                        time_remaining:
-                            safeTime
-                    })
-                    .select()
-                    .single();
+                    .select("*")
+                    .eq(
+                        "level",
+                        level
+                    )
+                    .ilike(
+                        "name",
+                        cleanName
+                    )
+                    .limit(1);
 
 
-            if (error) {
+            if (findError) {
 
                 console.error(
-                    "Score insert error:",
-                    error
+                    "Existing score lookup error:",
+                    findError
                 );
 
 
@@ -442,44 +432,317 @@ app.post(
                     .status(500)
                     .json({
                         message:
-                            "Could not save score."
+                            "Could not check existing score."
                     });
 
             }
 
 
-            res
-                .status(201)
+            const existingScore =
+                existingScores &&
+                existingScores.length > 0
+                    ? existingScores[0]
+                    : null;
+
+
+            // ===============================
+            // NO EXISTING SCORE → INSERT
+            // ===============================
+
+            if (!existingScore) {
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabase
+                        .from("scores")
+                        .insert({
+                            name:
+                                cleanName,
+
+                            score:
+                                safeScore,
+
+                            level:
+                                level,
+
+                            accuracy:
+                                safeAccuracy,
+
+                            time_remaining:
+                                safeTime
+                        })
+                        .select()
+                        .single();
+
+
+                if (error) {
+
+                    console.error(
+                        "Score insert error:",
+                        error
+                    );
+
+
+                    return res
+                        .status(500)
+                        .json({
+                            message:
+                                "Could not save score."
+                        });
+
+                }
+
+
+                return res
+                    .status(201)
+                    .json({
+
+                        message:
+                            "Score saved successfully.",
+
+                        updated:
+                            false,
+
+                        improved:
+                            true,
+
+                        score: {
+
+                            id:
+                                data.id,
+
+                            name:
+                                data.name,
+
+                            score:
+                                data.score,
+
+                            level:
+                                data.level,
+
+                            accuracy:
+                                data.accuracy,
+
+                            timeRemaining:
+                                Number(
+                                    data.time_remaining || 0
+                                ),
+
+                            createdAt:
+                                data.created_at
+
+                        }
+
+                    });
+
+            }
+
+
+            // ===============================
+            // CHECK IF NEW RESULT IS BETTER
+            // ===============================
+
+            const oldScore =
+                Number(
+                    existingScore.score || 0
+                );
+
+
+            const oldAccuracy =
+                Number(
+                    existingScore.accuracy || 0
+                );
+
+
+            const oldTime =
+                Number(
+                    existingScore.time_remaining || 0
+                );
+
+
+            let isBetter =
+                false;
+
+
+            if (
+                safeScore >
+                oldScore
+            ) {
+
+                isBetter =
+                    true;
+
+            }
+
+            else if (
+                safeScore === oldScore &&
+                safeAccuracy >
+                oldAccuracy
+            ) {
+
+                isBetter =
+                    true;
+
+            }
+
+            else if (
+                safeScore === oldScore &&
+                safeAccuracy === oldAccuracy &&
+                safeTime >
+                oldTime
+            ) {
+
+                isBetter =
+                    true;
+
+            }
+
+
+            // ===============================
+            // WORSE / SAME RESULT
+            // KEEP OLD BEST
+            // ===============================
+
+            if (!isBetter) {
+
+                return res
+                    .status(200)
+                    .json({
+
+                        message:
+                            "Existing best score kept.",
+
+                        updated:
+                            false,
+
+                        improved:
+                            false,
+
+                        score: {
+
+                            id:
+                                existingScore.id,
+
+                            name:
+                                existingScore.name,
+
+                            score:
+                                existingScore.score,
+
+                            level:
+                                existingScore.level,
+
+                            accuracy:
+                                existingScore.accuracy,
+
+                            timeRemaining:
+                                Number(
+                                    existingScore.time_remaining || 0
+                                ),
+
+                            createdAt:
+                                existingScore.created_at
+
+                        }
+
+                    });
+
+            }
+
+
+            // ===============================
+            // BETTER RESULT → UPDATE
+            // ===============================
+
+            const {
+                data: updatedScore,
+                error: updateError
+            } =
+                await supabase
+                    .from("scores")
+                    .update({
+
+                        name:
+                            cleanName,
+
+                        score:
+                            safeScore,
+
+                        accuracy:
+                            safeAccuracy,
+
+                        time_remaining:
+                            safeTime,
+
+                        created_at:
+                            new Date().toISOString()
+
+                    })
+                    .eq(
+                        "id",
+                        existingScore.id
+                    )
+                    .select()
+                    .single();
+
+
+            if (updateError) {
+
+                console.error(
+                    "Score update error:",
+                    updateError
+                );
+
+
+                return res
+                    .status(500)
+                    .json({
+                        message:
+                            "Could not update score."
+                    });
+
+            }
+
+
+            return res
+                .status(200)
                 .json({
 
                     message:
-                        "Score saved successfully.",
+                        "New personal best! Leaderboard updated.",
+
+                    updated:
+                        true,
+
+                    improved:
+                        true,
 
                     score: {
 
                         id:
-                            data.id,
+                            updatedScore.id,
 
                         name:
-                            data.name,
+                            updatedScore.name,
 
                         score:
-                            data.score,
+                            updatedScore.score,
 
                         level:
-                            data.level,
+                            updatedScore.level,
 
                         accuracy:
-                            data.accuracy,
+                            updatedScore.accuracy,
 
                         timeRemaining:
                             Number(
-                                data.time_remaining ||
-                                0
+                                updatedScore.time_remaining || 0
                             ),
 
                         createdAt:
-                            data.created_at
+                            updatedScore.created_at
 
                     }
 
@@ -506,7 +769,6 @@ app.post(
 
     }
 );
-
 
 // ===============================
 // SAVE GAME HISTORY
