@@ -289,6 +289,7 @@ app.get(
 
 // ===============================
 // SAVE / UPDATE BEST LEADERBOARD SCORE
+// BY PLAYER ID + LEVEL
 // ===============================
 
 app.post(
@@ -298,6 +299,7 @@ app.post(
         try {
 
             const {
+                playerId,
                 name,
                 score,
                 level,
@@ -306,7 +308,24 @@ app.post(
             } = req.body;
 
 
-            // NAME VALIDATION
+            // PLAYER ID
+
+            if (
+                typeof playerId !== "string" ||
+                playerId.trim().length < 5
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid player ID."
+                    });
+
+            }
+
+
+            // NAME
 
             if (
                 typeof name !== "string" ||
@@ -323,7 +342,7 @@ app.post(
             }
 
 
-            // SCORE VALIDATION
+            // SCORE
 
             if (
                 !isValidNumber(score) ||
@@ -341,7 +360,7 @@ app.post(
             }
 
 
-            // LEVEL VALIDATION
+            // LEVEL
 
             if (
                 !allowedLevels.includes(level)
@@ -357,7 +376,7 @@ app.post(
             }
 
 
-            // ACCURACY VALIDATION
+            // ACCURACY
 
             if (
                 !isValidNumber(accuracy) ||
@@ -373,6 +392,10 @@ app.post(
                     });
 
             }
+
+
+            const cleanPlayerId =
+                playerId.trim().slice(0, 100);
 
 
             const cleanName =
@@ -403,21 +426,21 @@ app.post(
             // ===============================
 
             const {
-                data: existingScores,
+                data: existingScore,
                 error: findError
             } =
                 await supabase
                     .from("scores")
                     .select("*")
                     .eq(
+                        "player_id",
+                        cleanPlayerId
+                    )
+                    .eq(
                         "level",
                         level
                     )
-                    .ilike(
-                        "name",
-                        cleanName
-                    )
-                    .limit(1);
+                    .maybeSingle();
 
 
             if (findError) {
@@ -438,15 +461,8 @@ app.post(
             }
 
 
-            const existingScore =
-                existingScores &&
-                existingScores.length > 0
-                    ? existingScores[0]
-                    : null;
-
-
             // ===============================
-            // NO EXISTING SCORE → INSERT
+            // FIRST SCORE FOR THIS LEVEL
             // ===============================
 
             if (!existingScore) {
@@ -458,6 +474,9 @@ app.post(
                     await supabase
                         .from("scores")
                         .insert({
+                            player_id:
+                                cleanPlayerId,
+
                             name:
                                 cleanName,
 
@@ -509,9 +528,11 @@ app.post(
                             true,
 
                         score: {
-
                             id:
                                 data.id,
+
+                            playerId:
+                                data.player_id,
 
                             name:
                                 data.name,
@@ -532,7 +553,6 @@ app.post(
 
                             createdAt:
                                 data.created_at
-
                         }
 
                     });
@@ -541,7 +561,7 @@ app.post(
 
 
             // ===============================
-            // CHECK IF NEW RESULT IS BETTER
+            // CHECK WHETHER NEW SCORE IS BETTER
             // ===============================
 
             const oldScore =
@@ -549,12 +569,10 @@ app.post(
                     existingScore.score || 0
                 );
 
-
             const oldAccuracy =
                 Number(
                     existingScore.accuracy || 0
                 );
-
 
             const oldTime =
                 Number(
@@ -601,11 +619,31 @@ app.post(
 
 
             // ===============================
-            // WORSE / SAME RESULT
-            // KEEP OLD BEST
+            // WORSE SCORE
+            // KEEP OLD SCORE
+            // BUT UPDATE DISPLAY NAME
             // ===============================
 
             if (!isBetter) {
+
+                if (
+                    cleanName !==
+                    existingScore.name
+                ) {
+
+                    await supabase
+                        .from("scores")
+                        .update({
+                            name:
+                                cleanName
+                        })
+                        .eq(
+                            "id",
+                            existingScore.id
+                        );
+
+                }
+
 
                 return res
                     .status(200)
@@ -621,12 +659,14 @@ app.post(
                             false,
 
                         score: {
-
                             id:
                                 existingScore.id,
 
+                            playerId:
+                                cleanPlayerId,
+
                             name:
-                                existingScore.name,
+                                cleanName,
 
                             score:
                                 existingScore.score,
@@ -644,7 +684,6 @@ app.post(
 
                             createdAt:
                                 existingScore.created_at
-
                         }
 
                     });
@@ -653,7 +692,7 @@ app.post(
 
 
             // ===============================
-            // BETTER RESULT → UPDATE
+            // BETTER SCORE → UPDATE
             // ===============================
 
             const {
@@ -663,7 +702,6 @@ app.post(
                 await supabase
                     .from("scores")
                     .update({
-
                         name:
                             cleanName,
 
@@ -677,8 +715,8 @@ app.post(
                             safeTime,
 
                         created_at:
-                            new Date().toISOString()
-
+                            new Date()
+                                .toISOString()
                     })
                     .eq(
                         "id",
@@ -720,9 +758,11 @@ app.post(
                         true,
 
                     score: {
-
                         id:
                             updatedScore.id,
+
+                        playerId:
+                            updatedScore.player_id,
 
                         name:
                             updatedScore.name,
@@ -743,7 +783,6 @@ app.post(
 
                         createdAt:
                             updatedScore.created_at
-
                     }
 
                 });
@@ -769,9 +808,9 @@ app.post(
 
     }
 );
-
 // ===============================
 // SAVE GAME HISTORY
+// WITH PLAYER ID
 // ===============================
 
 app.post(
@@ -781,6 +820,8 @@ app.post(
         try {
 
             const {
+                playerId,
+                name,
                 level,
                 score,
                 accuracy,
@@ -790,7 +831,53 @@ app.post(
             } = req.body;
 
 
+            // ===============================
+            // PLAYER ID
+            // ===============================
+
+            if (
+                typeof playerId !== "string" ||
+                playerId.trim().length < 5
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        message:
+                            "Invalid player ID."
+                    });
+
+            }
+
+
+            const cleanPlayerId =
+                playerId
+                    .trim()
+                    .slice(0, 100);
+
+
+            // ===============================
+            // OPTIONAL PLAYER NAME
+            // ===============================
+
+            let cleanName =
+                null;
+
+
+            if (
+                typeof name === "string" &&
+                name.trim().length > 0
+            ) {
+
+                cleanName =
+                    cleanPlayerName(name);
+
+            }
+
+
+            // ===============================
             // LEVEL
+            // ===============================
 
             if (
                 !allowedLevels.includes(
@@ -808,12 +895,12 @@ app.post(
             }
 
 
+            // ===============================
             // SCORE
+            // ===============================
 
             if (
-                !isValidNumber(
-                    score
-                ) ||
+                !isValidNumber(score) ||
                 score < 0 ||
                 score > 25
             ) {
@@ -828,12 +915,12 @@ app.post(
             }
 
 
+            // ===============================
             // ACCURACY
+            // ===============================
 
             if (
-                !isValidNumber(
-                    accuracy
-                ) ||
+                !isValidNumber(accuracy) ||
                 accuracy < 0 ||
                 accuracy > 100
             ) {
@@ -848,12 +935,12 @@ app.post(
             }
 
 
+            // ===============================
             // MISTAKES
+            // ===============================
 
             if (
-                !isValidNumber(
-                    mistakes
-                ) ||
+                !isValidNumber(mistakes) ||
                 mistakes < 0
             ) {
 
@@ -867,7 +954,9 @@ app.post(
             }
 
 
+            // ===============================
             // COMPLETED
+            // ===============================
 
             if (
                 typeof completed !==
@@ -884,10 +973,12 @@ app.post(
             }
 
 
+            // ===============================
+            // TIME
+            // ===============================
+
             const safeTime =
-                isValidNumber(
-                    timeRemaining
-                )
+                isValidNumber(timeRemaining)
                     ? Math.max(
                         0,
                         Number(
@@ -898,6 +989,10 @@ app.post(
                     : 0;
 
 
+            // ===============================
+            // SAVE TO SUPABASE
+            // ===============================
+
             const {
                 data,
                 error
@@ -907,6 +1002,13 @@ app.post(
                         "game_history"
                     )
                     .insert({
+
+                        player_id:
+                            cleanPlayerId,
+
+                        name:
+                            cleanName,
+
                         level:
                             level,
 
@@ -930,6 +1032,7 @@ app.post(
 
                         time_remaining:
                             safeTime
+
                     })
                     .select()
                     .single();
@@ -953,7 +1056,11 @@ app.post(
             }
 
 
-            res
+            // ===============================
+            // SUCCESS
+            // ===============================
+
+            return res
                 .status(201)
                 .json({
 
@@ -964,6 +1071,12 @@ app.post(
 
                         id:
                             data.id,
+
+                        playerId:
+                            data.player_id,
+
+                        name:
+                            data.name,
 
                         level:
                             data.level,
@@ -982,8 +1095,7 @@ app.post(
 
                         timeRemaining:
                             Number(
-                                data.time_remaining ||
-                                0
+                                data.time_remaining || 0
                             ),
 
                         playedAt:
@@ -1003,7 +1115,7 @@ app.post(
             );
 
 
-            res
+            return res
                 .status(500)
                 .json({
                     message:
@@ -1014,8 +1126,6 @@ app.post(
 
     }
 );
-
-
 // ===============================
 // VIEW GAME HISTORY
 // ===============================

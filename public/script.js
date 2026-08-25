@@ -7,25 +7,38 @@
 // ELEMENTS
 // ===============================
 
-const gameBoard = document.getElementById("gameBoard");
+const gameBoard =
+    document.getElementById("gameBoard");
 
-const timerDisplay = document.getElementById("timer");
-const scoreDisplay = document.getElementById("score");
-const nextNumberDisplay = document.getElementById("nextNumber");
+const timerDisplay =
+    document.getElementById("timer");
 
-const streakDisplay = document.getElementById("streak");
-const mistakesDisplay = document.getElementById("mistakes");
+const scoreDisplay =
+    document.getElementById("score");
 
-const timerProgress = document.getElementById("timerProgress");
+const nextNumberDisplay =
+    document.getElementById("nextNumber");
+
+const streakDisplay =
+    document.getElementById("streak");
+
+const mistakesDisplay =
+    document.getElementById("mistakes");
+
+const timerProgress =
+    document.getElementById("timerProgress");
 
 const penaltyMessage =
     document.getElementById("penaltyMessage");
 
-const message = document.getElementById("message");
+const message =
+    document.getElementById("message");
 
-const startBtn = document.getElementById("startBtn");
+const startBtn =
+    document.getElementById("startBtn");
 
-const soundBtn = document.getElementById("soundBtn");
+const soundBtn =
+    document.getElementById("soundBtn");
 
 const levelButtons =
     document.querySelectorAll(".level-btn");
@@ -80,53 +93,160 @@ const leaderboard =
     document.getElementById("leaderboard");
 
 const refreshLeaderboard =
-    document.getElementById("refreshLeaderboard");
+    document.getElementById(
+        "refreshLeaderboard"
+    );
 
 const filterButtons =
-    document.querySelectorAll(".filter-btn");
+    document.querySelectorAll(
+        ".filter-btn"
+    );
 
 let leaderboardData = [];
 
-let currentLeaderboardFilter = "all";
+let currentLeaderboardFilter =
+    "all";
+
+
+// ===============================
+// PLAYER ID
+// ===============================
+
+const PLAYER_ID_KEY =
+    "numberRushPlayerId";
+
+const PLAYER_NAME_KEY =
+    "numberRushPlayerName";
+
+
+function generatePlayerId() {
+
+    if (
+        window.crypto &&
+        typeof crypto.randomUUID ===
+        "function"
+    ) {
+
+        return crypto.randomUUID();
+
+    }
+
+    return (
+        "player_" +
+        Date.now() +
+        "_" +
+        Math.random()
+            .toString(36)
+            .slice(2, 12)
+    );
+
+}
+
+
+function getPlayerId() {
+
+    let storedId =
+        localStorage.getItem(
+            PLAYER_ID_KEY
+        );
+
+
+    if (!storedId) {
+
+        storedId =
+            generatePlayerId();
+
+
+        localStorage.setItem(
+            PLAYER_ID_KEY,
+            storedId
+        );
+
+    }
+
+
+    return storedId;
+
+}
+
+
+const playerId =
+    getPlayerId();
+
+
+// Remember player's last used name
+
+const rememberedName =
+    localStorage.getItem(
+        PLAYER_NAME_KEY
+    );
+
+
+if (
+    rememberedName &&
+    playerName
+) {
+
+    playerName.value =
+        rememberedName;
+
+}
 
 
 // ===============================
 // GAME VARIABLES
 // ===============================
 
-let currentLevel = "easy";
+let currentLevel =
+    "easy";
 
-let totalTime = 35;
+let totalTime =
+    35;
 
-let timeLeft = 35;
+let timeLeft =
+    35;
 
-let currentNumber = 1;
+let currentNumber =
+    1;
 
-let score = 0;
+let score =
+    0;
 
-let streak = 0;
+let streak =
+    0;
 
-let mistakes = 0;
+let mistakes =
+    0;
 
-let correctClicks = 0;
+let correctClicks =
+    0;
 
-let wrongClicks = 0;
+let wrongClicks =
+    0;
 
-let totalClicks = 0;
+let totalClicks =
+    0;
 
-let gameStarted = false;
+let gameStarted =
+    false;
 
-let countdownActive = false;
+let countdownActive =
+    false;
 
-let timerInterval = null;
+let timerInterval =
+    null;
 
-let countdownInterval = null;
+let countdownInterval =
+    null;
 
-let startTimestamp = null;
+let startTimestamp =
+    null;
 
-let penaltyTime = 0;
+let penaltyTime =
+    0;
 
-let soundEnabled = true;
+let soundEnabled =
+    true;
 
 
 // ===============================
@@ -157,7 +277,8 @@ const levels = {
 // SETTINGS
 // ===============================
 
-const WRONG_CLICK_PENALTY = 0.5;
+const WRONG_CLICK_PENALTY =
+    0.5;
 
 
 // ===============================
@@ -179,53 +300,71 @@ loadLeaderboard();
 
 function createBoard() {
 
-    gameBoard.innerHTML = "";
+    gameBoard.innerHTML =
+        "";
 
-    const numbers = [];
 
-    for (let i = 1; i <= 25; i++) {
+    const numbers =
+        [];
+
+
+    for (
+        let i = 1;
+        i <= 25;
+        i++
+    ) {
 
         numbers.push(i);
 
     }
 
-    shuffleArray(numbers);
+
+    shuffleArray(
+        numbers
+    );
 
 
-    numbers.forEach(number => {
+    numbers.forEach(
+        number => {
 
-        const button =
-            document.createElement("button");
-
-        button.classList.add(
-            "number-cell"
-        );
-
-        button.textContent =
-            number;
-
-        button.dataset.number =
-            number;
-
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                handleNumberClick(
-                    button,
-                    number
+            const button =
+                document.createElement(
+                    "button"
                 );
 
-            }
-        );
+
+            button.classList.add(
+                "number-cell"
+            );
 
 
-        gameBoard.appendChild(
-            button
-        );
+            button.textContent =
+                number;
 
-    });
+
+            button.dataset.number =
+                number;
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    handleNumberClick(
+                        button,
+                        number
+                    );
+
+                }
+            );
+
+
+            gameBoard.appendChild(
+                button
+            );
+
+        }
+    );
 
 }
 
@@ -237,7 +376,8 @@ function createBoard() {
 function shuffleArray(array) {
 
     for (
-        let i = array.length - 1;
+        let i =
+            array.length - 1;
         i > 0;
         i--
     ) {
@@ -259,6 +399,7 @@ function shuffleArray(array) {
 
     }
 
+
     return array;
 
 }
@@ -275,11 +416,15 @@ function lockBoard() {
             ".number-cell"
         );
 
-    cells.forEach(cell => {
 
-        cell.disabled = true;
+    cells.forEach(
+        cell => {
 
-    });
+            cell.disabled =
+                true;
+
+        }
+    );
 
 }
 
@@ -295,19 +440,23 @@ function unlockBoard() {
             ".number-cell"
         );
 
-    cells.forEach(cell => {
 
-        if (
-            !cell.classList.contains(
-                "correct"
-            )
-        ) {
+    cells.forEach(
+        cell => {
 
-            cell.disabled = false;
+            if (
+                !cell.classList.contains(
+                    "correct"
+                )
+            ) {
+
+                cell.disabled =
+                    false;
+
+            }
 
         }
-
-    });
+    );
 
 }
 
@@ -316,66 +465,78 @@ function unlockBoard() {
 // DIFFICULTY SELECTION
 // ===============================
 
-levelButtons.forEach(button => {
+levelButtons.forEach(
+    button => {
 
-    button.addEventListener(
-        "click",
-        () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-            if (
-                gameStarted ||
-                countdownActive
-            ) {
+                if (
+                    gameStarted ||
+                    countdownActive
+                ) {
 
-                return;
+                    return;
 
-            }
+                }
 
 
-            levelButtons.forEach(btn => {
+                levelButtons.forEach(
+                    btn => {
 
-                btn.classList.remove(
+                        btn.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+                button.classList.add(
                     "active"
                 );
 
-            });
+
+                currentLevel =
+                    button.dataset.level;
 
 
-            button.classList.add(
-                "active"
-            );
+                totalTime =
+                    levels[
+                        currentLevel
+                    ].time;
 
 
-            currentLevel =
-                button.dataset.level;
+                timeLeft =
+                    totalTime;
 
 
-            totalTime =
-                levels[currentLevel].time;
+                timerDisplay.textContent =
+                    totalTime.toFixed(
+                        1
+                    );
 
 
-            timeLeft =
-                totalTime;
+                timerProgress.style.width =
+                    "100%";
 
 
-            timerDisplay.textContent =
-                totalTime.toFixed(1);
+                message.textContent =
+                    `${
+                        levels[
+                            currentLevel
+                        ].label
+                    } mode selected.`;
 
 
-            timerProgress.style.width =
-                "100%";
+                loadPersonalBest();
 
+            }
+        );
 
-            message.textContent =
-                `${levels[currentLevel].label} mode selected.`;
-
-
-            loadPersonalBest();
-
-        }
-    );
-
-});
+    }
+);
 
 
 // ===============================
@@ -394,7 +555,9 @@ startBtn.addEventListener(
 
 function prepareGame() {
 
-    if (countdownActive) {
+    if (
+        countdownActive
+    ) {
 
         return;
 
@@ -405,14 +568,17 @@ function prepareGame() {
         timerInterval
     );
 
+
     clearInterval(
         countdownInterval
     );
 
 
-    gameStarted = false;
+    gameStarted =
+        false;
 
-    countdownActive = true;
+    countdownActive =
+        true;
 
 
     resultModal.classList.add(
@@ -425,25 +591,35 @@ function prepareGame() {
     lockBoard();
 
 
-    currentNumber = 1;
+    currentNumber =
+        1;
 
-    score = 0;
+    score =
+        0;
 
-    streak = 0;
+    streak =
+        0;
 
-    mistakes = 0;
+    mistakes =
+        0;
 
-    correctClicks = 0;
+    correctClicks =
+        0;
 
-    wrongClicks = 0;
+    wrongClicks =
+        0;
 
-    totalClicks = 0;
+    totalClicks =
+        0;
 
-    penaltyTime = 0;
+    penaltyTime =
+        0;
 
 
     totalTime =
-        levels[currentLevel].time;
+        levels[
+            currentLevel
+        ].time;
 
 
     timeLeft =
@@ -454,16 +630,17 @@ function prepareGame() {
         null;
 
 
-    // RESET SAVE BUTTON
+    // SAVE BUTTON RESET
 
     saveScoreBtn.disabled =
         false;
+
 
     saveScoreBtn.textContent =
         "Save Score";
 
 
-    // RESET UI
+    // UI RESET
 
     scoreDisplay.textContent =
         "0";
@@ -488,7 +665,9 @@ function prepareGame() {
 
 
     timerDisplay.textContent =
-        totalTime.toFixed(1);
+        totalTime.toFixed(
+            1
+        );
 
 
     timerDisplay.classList.remove(
@@ -539,7 +718,8 @@ function prepareGame() {
 
 function startCountdown() {
 
-    let countdownValue = 3;
+    let countdownValue =
+        3;
 
 
     message.textContent =
@@ -557,7 +737,8 @@ function startCountdown() {
 
 
                 if (
-                    countdownValue > 0
+                    countdownValue >
+                    0
                 ) {
 
                     message.textContent =
@@ -611,7 +792,8 @@ function startCountdown() {
 
 function startActualGame() {
 
-    gameStarted = true;
+    gameStarted =
+        true;
 
 
     unlockBoard();
@@ -645,14 +827,20 @@ function startActualGame() {
 
 
                 if (
-                    timeLeft <= 0
+                    timeLeft <=
+                    0
                 ) {
 
-                    timeLeft = 0;
+                    timeLeft =
+                        0;
+
 
                     updateTimerUI();
 
-                    endGame(false);
+
+                    endGame(
+                        false
+                    );
 
                 }
 
@@ -670,7 +858,9 @@ function startActualGame() {
 function updateTimerUI() {
 
     timerDisplay.textContent =
-        timeLeft.toFixed(1);
+        timeLeft.toFixed(
+            1
+        );
 
 
     const percentage =
@@ -694,7 +884,8 @@ function updateTimerUI() {
 
 
     if (
-        timeLeft <= 3
+        timeLeft <=
+        3
     ) {
 
         timerDisplay.classList.add(
@@ -704,7 +895,8 @@ function updateTimerUI() {
     }
 
     else if (
-        timeLeft <= 7
+        timeLeft <=
+        7
     ) {
 
         timerDisplay.classList.add(
@@ -725,7 +917,9 @@ function handleNumberClick(
     number
 ) {
 
-    if (!gameStarted) {
+    if (
+        !gameStarted
+    ) {
 
         return;
 
@@ -740,7 +934,8 @@ function handleNumberClick(
     // ===============================
 
     if (
-        number === currentNumber
+        number ===
+        currentNumber
     ) {
 
         correctClicks++;
@@ -774,7 +969,8 @@ function handleNumberClick(
 
 
         if (
-            streak >= 5
+            streak >=
+            5
         ) {
 
             streakDisplay.classList.add(
@@ -793,7 +989,8 @@ function handleNumberClick(
 
 
         if (
-            score >= 20
+            score >=
+            20
         ) {
 
             scoreDisplay.classList.add(
@@ -803,10 +1000,11 @@ function handleNumberClick(
         }
 
 
-        // COMPLETED ALL 25
+        // COMPLETED 1-25
 
         if (
-            currentNumber === 25
+            currentNumber ===
+            25
         ) {
 
             nextNumberDisplay.textContent =
@@ -817,7 +1015,10 @@ function handleNumberClick(
                 `Amazing! ${streak} correct clicks in a row.`;
 
 
-            endGame(true);
+            endGame(
+                true
+            );
+
 
             return;
 
@@ -832,7 +1033,8 @@ function handleNumberClick(
 
 
         if (
-            streak >= 10
+            streak >=
+            10
         ) {
 
             message.textContent =
@@ -841,7 +1043,8 @@ function handleNumberClick(
         }
 
         else if (
-            streak >= 5
+            streak >=
+            5
         ) {
 
             message.textContent =
@@ -870,9 +1073,8 @@ function handleNumberClick(
         mistakes++;
 
 
-        // RESET STREAK
-
-        streak = 0;
+        streak =
+            0;
 
 
         streakDisplay.textContent =
@@ -887,8 +1089,6 @@ function handleNumberClick(
         mistakesDisplay.textContent =
             mistakes;
 
-
-        // APPLY TIME PENALTY
 
         penaltyTime +=
             WRONG_CLICK_PENALTY;
@@ -932,17 +1132,21 @@ function handleNumberClick(
         );
 
 
-        // PENALTY MAY END GAME
-
         if (
-            timeLeft <= 0
+            timeLeft <=
+            0
         ) {
 
-            timeLeft = 0;
+            timeLeft =
+                0;
+
 
             updateTimerUI();
 
-            endGame(false);
+
+            endGame(
+                false
+            );
 
         }
 
@@ -973,7 +1177,7 @@ function animateStreak() {
 
 
 // ===============================
-// SHOW PENALTY
+// PENALTY ANIMATION
 // ===============================
 
 function showPenalty() {
@@ -1023,16 +1227,21 @@ function showPenalty() {
 // END GAME
 // ===============================
 
-function endGame(completed) {
+function endGame(
+    completed
+) {
 
-    if (!gameStarted) {
+    if (
+        !gameStarted
+    ) {
 
         return;
 
     }
 
 
-    gameStarted = false;
+    gameStarted =
+        false;
 
 
     clearInterval(
@@ -1043,13 +1252,13 @@ function endGame(completed) {
     lockBoard();
 
 
-    // ACCURACY
-
-    let accuracy = 100;
+    let accuracy =
+        100;
 
 
     if (
-        totalClicks > 0
+        totalClicks >
+        0
     ) {
 
         accuracy =
@@ -1062,11 +1271,18 @@ function endGame(completed) {
 
     }
 
+
+    // Automatically record every game
+
     recordGameHistory(
-    completed,
-    accuracy
-);
-    if (completed) {
+        completed,
+        accuracy
+    );
+
+
+    if (
+        completed
+    ) {
 
         resultIcon.textContent =
             "🏆";
@@ -1077,7 +1293,11 @@ function endGame(completed) {
 
 
         resultMessage.textContent =
-            `You completed ${levels[currentLevel].label} mode with ${timeLeft.toFixed(1)}s left and ${mistakes} mistake${mistakes === 1 ? "" : "s"}.`;
+            `You completed ${
+                levels[
+                    currentLevel
+                ].label
+            } mode with ${timeLeft.toFixed(1)}s left and ${mistakes} mistake${mistakes === 1 ? "" : "s"}.`;
 
 
         message.textContent =
@@ -1136,6 +1356,106 @@ function endGame(completed) {
 
 
 // ===============================
+// RECORD GAME HISTORY
+// ===============================
+
+async function recordGameHistory(
+    completed,
+    accuracy
+) {
+
+    const savedName =
+        localStorage.getItem(
+            PLAYER_NAME_KEY
+        );
+
+
+    const gameData = {
+
+        playerId:
+            playerId,
+
+        name:
+            savedName || null,
+
+        level:
+            currentLevel,
+
+        score:
+            score,
+
+        accuracy:
+            accuracy,
+
+        mistakes:
+            mistakes,
+
+        completed:
+            completed,
+
+        timeRemaining:
+            Number(
+                timeLeft.toFixed(
+                    2
+                )
+            )
+
+    };
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/game-history",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            gameData
+                        )
+
+                }
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "Game history request failed."
+            );
+
+        }
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            "Game history could not be saved:",
+            error
+        );
+
+    }
+
+}
+
+
+// ===============================
 // PERSONAL BEST
 // ===============================
 
@@ -1155,9 +1475,11 @@ function updatePersonalBest(
             )
         ) || {
 
-            score: 0,
+            score:
+                0,
 
-            remainingTime: null
+            remainingTime:
+                null
 
         };
 
@@ -1181,7 +1503,8 @@ function updatePersonalBest(
         stored.score === 25 &&
         remainingTime !== null &&
         (
-            stored.remainingTime === null ||
+            stored.remainingTime ===
+            null ||
             remainingTime >
             stored.remainingTime
         )
@@ -1193,7 +1516,9 @@ function updatePersonalBest(
     }
 
 
-    if (shouldUpdate) {
+    if (
+        shouldUpdate
+    ) {
 
         const data = {
 
@@ -1201,7 +1526,8 @@ function updatePersonalBest(
                 newScore,
 
             remainingTime:
-                remainingTime !== null
+                remainingTime !==
+                null
                     ? Number(
                         remainingTime.toFixed(
                             2
@@ -1214,7 +1540,9 @@ function updatePersonalBest(
 
         localStorage.setItem(
             key,
-            JSON.stringify(data)
+            JSON.stringify(
+                data
+            )
         );
 
     }
@@ -1243,7 +1571,9 @@ function loadPersonalBest() {
         );
 
 
-    if (!stored) {
+    if (
+        !stored
+    ) {
 
         bestScoreDisplay.textContent =
             "0 / 25";
@@ -1264,7 +1594,8 @@ function loadPersonalBest() {
 
     if (
         stored.score === 25 &&
-        stored.remainingTime !== null
+        stored.remainingTime !==
+        null
     ) {
 
         bestTimeDisplay.textContent =
@@ -1344,7 +1675,9 @@ soundBtn.addEventListener(
 
 function playCorrectSound() {
 
-    if (!soundEnabled) {
+    if (
+        !soundEnabled
+    ) {
 
         return;
 
@@ -1362,7 +1695,9 @@ function playCorrectSound() {
 
 function playWrongSound() {
 
-    if (!soundEnabled) {
+    if (
+        !soundEnabled
+    ) {
 
         return;
 
@@ -1380,7 +1715,9 @@ function playWrongSound() {
 
 function playCountdownSound() {
 
-    if (!soundEnabled) {
+    if (
+        !soundEnabled
+    ) {
 
         return;
 
@@ -1398,7 +1735,9 @@ function playCountdownSound() {
 
 function playGoSound() {
 
-    if (!soundEnabled) {
+    if (
+        !soundEnabled
+    ) {
 
         return;
 
@@ -1471,7 +1810,9 @@ function createBeep(
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.log(
             "Audio unavailable."
@@ -1498,7 +1839,9 @@ async function saveScore() {
         playerName.value.trim();
 
 
-    if (!name) {
+    if (
+        !name
+    ) {
 
         playerName.focus();
 
@@ -1512,6 +1855,14 @@ async function saveScore() {
     }
 
 
+    // Remember name on this browser
+
+    localStorage.setItem(
+        PLAYER_NAME_KEY,
+        name
+    );
+
+
     saveScoreBtn.disabled =
         true;
 
@@ -1521,7 +1872,8 @@ async function saveScore() {
 
 
     const accuracy =
-        totalClicks === 0
+        totalClicks ===
+        0
             ? 100
             : Math.round(
                 (
@@ -1532,6 +1884,9 @@ async function saveScore() {
 
 
     const scoreData = {
+
+        playerId:
+            playerId,
 
         name:
             name,
@@ -1581,17 +1936,48 @@ async function saveScore() {
             );
 
 
-        if (!response.ok) {
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
+                result.message ||
                 "Unable to save score."
             );
 
         }
 
 
-        saveScoreBtn.textContent =
-            "✓ Score Saved";
+        if (
+            result.improved ===
+            false
+        ) {
+
+            saveScoreBtn.textContent =
+                "Best Score Kept";
+
+        }
+
+        else if (
+            result.updated ===
+            true
+        ) {
+
+            saveScoreBtn.textContent =
+                "✓ New Best Updated";
+
+        }
+
+        else {
+
+            saveScoreBtn.textContent =
+                "✓ Score Saved";
+
+        }
 
 
         saveScoreBtn.disabled =
@@ -1602,7 +1988,9 @@ async function saveScore() {
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.error(
             error
@@ -1653,7 +2041,9 @@ async function loadLeaderboard() {
             );
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
                 "Unable to load leaderboard."
@@ -1672,7 +2062,9 @@ async function loadLeaderboard() {
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.error(
             error
@@ -1721,7 +2113,8 @@ function displayLeaderboard(
         !Array.isArray(
             filteredScores
         ) ||
-        filteredScores.length === 0
+        filteredScores.length ===
+        0
     ) {
 
         leaderboard.innerHTML = `
@@ -1740,107 +2133,114 @@ function displayLeaderboard(
         "";
 
 
-    filteredScores
-        .forEach(
-            (item, index) => {
+    // SHOW ALL SAVED SCORES
 
-                const row =
-                    document.createElement(
-                        "div"
-                    );
+    filteredScores.forEach(
+        (
+            item,
+            index
+        ) => {
 
-
-                row.classList.add(
-                    "leaderboard-row"
+            const row =
+                document.createElement(
+                    "div"
                 );
 
 
-                let medal =
-                    `#${index + 1}`;
+            row.classList.add(
+                "leaderboard-row"
+            );
 
 
-                if (
-                    index === 0
-                ) {
-
-                    medal =
-                        "🥇";
-
-                }
-
-                else if (
-                    index === 1
-                ) {
-
-                    medal =
-                        "🥈";
-
-                }
-
-                else if (
-                    index === 2
-                ) {
-
-                    medal =
-                        "🥉";
-
-                }
+            let medal =
+                `#${index + 1}`;
 
 
-                let timeText =
-                    "--";
+            if (
+                index ===
+                0
+            ) {
 
-
-                if (
-                    typeof item.timeRemaining ===
-                    "number"
-                ) {
-
-                    timeText =
-                        `${item.timeRemaining.toFixed(1)}s`;
-
-                }
-
-
-                row.innerHTML = `
-
-                    <span class="rank">
-                        ${medal}
-                    </span>
-
-                    <span class="player">
-                        ${escapeHTML(
-                            item.name
-                        )}
-                    </span>
-
-                    <span class="leaderboard-score">
-                        ${item.score}/25
-                    </span>
-
-                    <span class="leaderboard-level">
-                        ${escapeHTML(
-                            item.level
-                        )}
-                    </span>
-
-                    <span class="leaderboard-accuracy">
-                        ${item.accuracy}%
-                    </span>
-
-                    <span class="leaderboard-time">
-                        ${timeText}
-                    </span>
-
-                `;
-
-
-                leaderboard.appendChild(
-                    row
-                );
+                medal =
+                    "🥇";
 
             }
-        );
+
+            else if (
+                index ===
+                1
+            ) {
+
+                medal =
+                    "🥈";
+
+            }
+
+            else if (
+                index ===
+                2
+            ) {
+
+                medal =
+                    "🥉";
+
+            }
+
+
+            let timeText =
+                "--";
+
+
+            if (
+                typeof item.timeRemaining ===
+                "number"
+            ) {
+
+                timeText =
+                    `${item.timeRemaining.toFixed(1)}s`;
+
+            }
+
+
+            row.innerHTML = `
+
+                <span class="rank">
+                    ${medal}
+                </span>
+
+                <span class="player">
+                    ${escapeHTML(
+                        item.name
+                    )}
+                </span>
+
+                <span class="leaderboard-score">
+                    ${item.score}/25
+                </span>
+
+                <span class="leaderboard-level">
+                    ${escapeHTML(
+                        item.level
+                    )}
+                </span>
+
+                <span class="leaderboard-accuracy">
+                    ${item.accuracy}%
+                </span>
+
+                <span class="leaderboard-time">
+                    ${timeText}
+                </span>
+
+            `;
+
+
+            leaderboard.appendChild(
+                row
+            );
+
+        }
+    );
 
 }
 
@@ -1901,9 +2301,13 @@ refreshLeaderboard.addEventListener(
 // ESCAPE HTML
 // ===============================
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
-    return String(value)
+    return String(
+        value
+    )
 
         .replaceAll(
             "&",
@@ -1942,7 +2346,8 @@ document.addEventListener(
     event => {
 
         if (
-            event.code === "Space" &&
+            event.code ===
+                "Space" &&
             !gameStarted &&
             !countdownActive &&
             resultModal.classList.contains(
@@ -1952,13 +2357,15 @@ document.addEventListener(
 
             event.preventDefault();
 
+
             prepareGame();
 
         }
 
 
         if (
-            event.code === "Escape" &&
+            event.code ===
+                "Escape" &&
             !resultModal.classList.contains(
                 "hidden"
             )
@@ -1972,37 +2379,3 @@ document.addEventListener(
 
     }
 );
-
-async function recordGameHistory(completed, accuracy) {
-
-    const gameData = {
-        level: currentLevel,
-        score: score,
-        accuracy: accuracy,
-        mistakes: mistakes,
-        completed: completed,
-        timeRemaining: Number(timeLeft.toFixed(2))
-    };
-
-    try {
-
-        await fetch("/api/game-history", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(gameData)
-        });
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Game history could not be saved:",
-            error
-        );
-
-    }
-
-}
